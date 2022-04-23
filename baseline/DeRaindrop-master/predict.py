@@ -15,7 +15,7 @@ import argparse
 #Models lib
 from models import *
 #Metrics lib
-from metrics import calc_psnr, calc_ssim
+# from metrics import calc_psnr, calc_ssim
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -54,13 +54,20 @@ def predict(image):
 
 
 if __name__ == '__main__':
+    print("reached step 1")
     args = get_args()
 
+    print("reached step 2")
     model = Generator().cuda()
+
+    print("reached step 3")
     model.load_state_dict(torch.load('./weights/gen.pkl'))
 
+    print("reached step 4")
     if args.mode == 'demo':
+        print("reached step 5")
         input_list = sorted(os.listdir(args.input_dir))
+        print("reached step 6")
         num = len(input_list)
         for i in range(num):
             print ('Processing image: %s'%(input_list[i]))
@@ -84,12 +91,12 @@ if __name__ == '__main__':
             gt = align_to_four(gt)
             result = predict(img)
             result = np.array(result, dtype = 'uint8')
-            cur_psnr = calc_psnr(result, gt)
-            cur_ssim = calc_ssim(result, gt)
-            print('PSNR is %.4f and SSIM is %.4f'%(cur_psnr, cur_ssim))
-            cumulative_psnr += cur_psnr
-            cumulative_ssim += cur_ssim
-        print('In testing dataset, PSNR is %.4f and SSIM is %.4f'%(cumulative_psnr/num, cumulative_ssim/num))
+            # cur_psnr = calc_psnr(result, gt)
+            # cur_ssim = calc_ssim(result, gt)
+            # print('PSNR is %.4f and SSIM is %.4f'%(cur_psnr, cur_ssim))
+            # cumulative_psnr += cur_psnr
+            # cumulative_ssim += cur_ssim
+        # print('In testing dataset, PSNR is %.4f and SSIM is %.4f'%(cumulative_psnr/num, cumulative_ssim/num))
 
     else:
         print ('Mode Invalid!')
