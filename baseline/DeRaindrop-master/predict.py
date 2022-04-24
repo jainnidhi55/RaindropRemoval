@@ -52,6 +52,19 @@ def predict(image):
     
     return out
 
+def predict_raindrop_mask(image):
+    image = np.array(image, dtype='float32')/255.
+    image = image.transpose((2, 0, 1))
+    image = image[np.newaxis, :, :, :]
+    image = torch.from_numpy(image)
+    image = Variable(image).cuda()
+
+    out = model(image)[0][-1]
+
+    out = out.cpu().data
+    out = out.numpy()
+    return out
+
 
 if __name__ == '__main__':
     print("reached step 1")
@@ -73,6 +86,7 @@ if __name__ == '__main__':
             print ('Processing image: %s'%(input_list[i]))
             img = cv2.imread(args.input_dir + input_list[i])
             img = align_to_four(img)
+            print("SHAPE: ", img.shape)
             result = predict(img)
             img_name = input_list[i].split('.')[0]
             cv2.imwrite(args.output_dir + img_name + '.jpg', result)
@@ -91,6 +105,31 @@ if __name__ == '__main__':
             gt = align_to_four(gt)
             result = predict(img)
             result = np.array(result, dtype = 'uint8')
+            # cur_psnr = calc_psnr(result, gt)
+            # cur_ssim = calc_ssim(result, gt)
+            # print('PSNR is %.4f and SSIM is %.4f'%(cur_psnr, cur_ssim))
+            # cumulative_psnr += cur_psnr
+            # cumulative_ssim += cur_ssim
+        # print('In testing dataset, PSNR is %.4f and SSIM is %.4f'%(cumulative_psnr/num, cumulative_ssim/num))
+    
+    elif args.mode == 'mask':
+        input_list = sorted(os.listdir(args.input_dir))
+        # gt_list = sorted(os.listdir(args.gt_dir))
+        num = len(input_list)
+        # cumulative_psnr = 0
+        # cumulative_ssim = 0
+        for i in range(num):
+            print ('Processing image: %s'%(input_list[i]))
+            img = cv2.imread(args.input_dir + input_list[i])
+            # gt = cv2.imread(args.gt_dir + gt_list[i])
+            img = align_to_four(img)
+            # gt = align_to_four(gt)
+            out = predict_raindrop_mask(img)
+            img_name = input_list[i].split('.')[0]
+            pathname = 'rain_masks/train/%s_rain_mask.npy'%(img_name)
+            with open(pathname, 'wb') as f:
+                np.save(f, out)
+            
             # cur_psnr = calc_psnr(result, gt)
             # cur_ssim = calc_ssim(result, gt)
             # print('PSNR is %.4f and SSIM is %.4f'%(cur_psnr, cur_ssim))
