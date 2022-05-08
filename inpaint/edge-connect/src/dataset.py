@@ -15,13 +15,14 @@ from .utils import create_mask
 
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, config, flist, edge_flist, mask_flist, augment=True, training=True):
+    def __init__(self, config, flist, edge_flist, mask_flist, gt_flist, augment=True, training=True):
         super(Dataset, self).__init__()
         self.augment = augment
         self.training = training
         self.data = self.load_flist(flist)
         self.edge_data = self.load_flist(edge_flist)
         self.mask_data = self.load_flist(mask_flist)
+        self.gt_data = self.load_flist(gt_flist)
 
         self.input_size = config.INPUT_SIZE
         self.sigma = config.SIGMA

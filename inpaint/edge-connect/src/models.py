@@ -258,8 +258,8 @@ class InpaintingModel(BaseModel):
         return outputs
 
     def backward(self, gen_loss=None, dis_loss=None):
-        dis_loss.backward()
-        self.dis_optimizer.step()
-
         gen_loss.backward()
         self.gen_optimizer.step()
+        
+        dis_loss.backward()
+        self.dis_optimizer.step()
