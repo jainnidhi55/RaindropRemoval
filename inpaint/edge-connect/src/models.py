@@ -45,11 +45,11 @@ class BaseModel(nn.Module):
         torch.save({
             'iteration': self.iteration,
             'generator': self.generator.state_dict()
-        }, self.gen_weights_path)
+        }, os.path.join(self.config.PATH,self.name + '_gen_{}.pth'.format(self.iteration)))
 
         torch.save({
             'discriminator': self.discriminator.state_dict()
-        }, self.dis_weights_path)
+        }, os.path.join(self.config.PATH, self.name + '_dis_{}.pth'.format(self.iteration)))
 
 
 class EdgeModel(BaseModel):
