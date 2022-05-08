@@ -353,7 +353,7 @@ class EdgeConnect():
 
         model = self.config.MODEL
         items = next(self.sample_iterator)
-        images, images_gray, edges, masks, gts = self.cuda(*items)
+        images, images_gray, edges, masks, gts, gt_gray, gt_edge = self.cuda(*items)
 
         # edge model
         if model == 1:
