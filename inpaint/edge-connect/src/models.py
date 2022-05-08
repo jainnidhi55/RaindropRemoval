@@ -84,7 +84,7 @@ class EdgeModel(BaseModel):
             betas=(config.BETA1, config.BETA2)
         )
 
-    def process(self, images, edges, masks):
+    def process(self, images, edges, masks, gts, gt_edge):
         self.iteration += 1
 
 
@@ -100,7 +100,7 @@ class EdgeModel(BaseModel):
 
 
         # discriminator loss
-        dis_input_real = torch.cat((images, edges), dim=1)
+        dis_input_real = torch.cat((gts, gt_edge), dim=1)
         dis_input_fake = torch.cat((images, outputs.detach()), dim=1)
         dis_real, dis_real_feat = self.discriminator(dis_input_real)        # in: (grayscale(1) + edge(1))
         dis_fake, dis_fake_feat = self.discriminator(dis_input_fake)        # in: (grayscale(1) + edge(1))

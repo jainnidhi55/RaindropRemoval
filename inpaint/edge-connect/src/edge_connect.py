@@ -99,12 +99,12 @@ class EdgeConnect():
                 self.edge_model.train()
                 self.inpaint_model.train()
 
-                images, images_gray, edges, masks, gts = self.cuda(*items)
+                images, images_gray, edges, masks, gts, gt_gray, gt_edge = self.cuda(*items)
 
                 # edge model
                 if model == 1:
                     # train
-                    outputs, gen_loss, dis_loss, logs = self.edge_model.process(images_gray, edges, masks)
+                    outputs, gen_loss, dis_loss, logs = self.edge_model.process(images_gray, edges, masks, gt_gray, gt_edge)
 
                     # metrics
                     precision, recall = self.edgeacc(edges * masks, outputs * masks)
@@ -159,7 +159,7 @@ class EdgeConnect():
                 # joint model
                 else:
                     # train
-                    e_outputs, e_gen_loss, e_dis_loss, e_logs = self.edge_model.process(images_gray, edges, masks)
+                    e_outputs, e_gen_loss, e_dis_loss, e_logs = self.edge_model.process(images_gray, edges, masks, gt_gray, gt_edge)
                     e_outputs = e_outputs * masks + edges * (1 - masks)
                     i_outputs, i_gen_loss, i_dis_loss, i_logs = self.inpaint_model.process(images, e_outputs, masks, gts)
                     outputs_merged = (i_outputs * masks) + (images * (1 - masks))
@@ -229,12 +229,12 @@ class EdgeConnect():
 
         for items in val_loader:
             iteration += 1
-            images, images_gray, edges, masks, gts = self.cuda(*items)
+            images, images_gray, edges, masks, gts, gt_gray, gt_edge = self.cuda(*items)
 
             # edge model
             if model == 1:
                 # eval
-                outputs, gen_loss, dis_loss, logs = self.edge_model.process(images_gray, edges, masks)
+                outputs, gen_loss, dis_loss, logs = self.edge_model.process(images_gray, edges, masks, gt_gray, gt_edge)
 
                 # metrics
                 precision, recall = self.edgeacc(edges * masks, outputs * masks)
@@ -274,7 +274,7 @@ class EdgeConnect():
             # joint model
             else:
                 # eval
-                e_outputs, e_gen_loss, e_dis_loss, e_logs = self.edge_model.process(images_gray, edges, masks)
+                e_outputs, e_gen_loss, e_dis_loss, e_logs = self.edge_model.process(images_gray, edges, masks, gt_gray, gt_edge)
                 e_outputs = e_outputs * masks + edges * (1 - masks)
                 i_outputs, i_gen_loss, i_dis_loss, i_logs = self.inpaint_model.process(images, e_outputs, masks, gts)
                 outputs_merged = (i_outputs * masks) + (images * (1 - masks))
