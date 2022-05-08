@@ -81,7 +81,7 @@ class Dataset(torch.utils.data.Dataset):
         mask = self.load_mask(img, index)
 
         # load edge
-        edge = self.load_edge(img_gray, index, mask)
+        edge, gt_edge = self.load_edge(img_gray, gt_img_gray, index, mask)
 
         # augment data
         if self.augment and np.random.binomial(1, 0.5) > 0:
@@ -90,11 +90,12 @@ class Dataset(torch.utils.data.Dataset):
             gt_img = gt_img[:, ::-1, ...]
             gt_img_gray = gt_img_gray[:, ::-1, ...]
             edge = edge[:, ::-1, ...]
+            gt_edge = gt_edge[:, ::-1, ...]
             mask = mask[:, ::-1, ...] 
 
-        return self.to_tensor(img), self.to_tensor(img_gray), self.to_tensor(edge), self.to_tensor(mask), self.to_tensor(gt_img)
+        return self.to_tensor(img), self.to_tensor(img_gray), self.to_tensor(edge), self.to_tensor(mask), self.to_tensor(gt_img), self.to_tensor(gt_img_gray), self.to_tensor(gt_edge)
 
-    def load_edge(self, img, index, mask):
+    def load_edge(self, img, gt_img, index, mask):
         sigma = self.sigma
 
         # in test mode images are masked (with masked regions),
@@ -105,13 +106,13 @@ class Dataset(torch.utils.data.Dataset):
         if self.edge == 1:
             # no edge
             if sigma == -1:
-                return np.zeros(img.shape).astype(np.float)
+                return np.zeros(img.shape).astype(np.float), np.zeros(img.shape).astype(np.float)
 
             # random sigma
             if sigma == 0:
                 sigma = random.randint(1, 4)
 
-            return canny(img, sigma=sigma, mask=mask).astype(np.float)
+            return canny(img, sigma=sigma, mask=mask).astype(np.float), canny(gt_img, sigma=sigma, mask=mask).astype(np.float)
 
         # external
         else:
@@ -123,7 +124,7 @@ class Dataset(torch.utils.data.Dataset):
             if self.nms == 1:
                 edge = edge * canny(img, sigma=sigma, mask=mask)
 
-            return edge
+            return edge, gt_edge
 
     def load_mask(self, img, index):
         imgh, imgw = img.shape[0:2]
