@@ -57,9 +57,9 @@ class Dataset(torch.utils.data.Dataset):
         size = self.input_size
 
         # load image
-        img = cv2.imread(self.data[index], cv2.COLOR_BGR2RGB)
+        img = cv2.cvtColor(cv2.imread(self.data[index]), cv2.COLOR_BGR2RGB)
         # load gt image
-        gt_img = cv2.imread(self.gt_data[index], cv2.COLOR_BGR2RGB)
+        gt_img = cv2.cvtColor(cv2.imread(self.gt_data[index]), cv2.COLOR_BGR2RGB)
 
         # gray to rgb
         if len(img.shape) < 3:
@@ -117,14 +117,14 @@ class Dataset(torch.utils.data.Dataset):
         # external
         else:
             imgh, imgw = img.shape[0:2]
-            edge = cv2.imread(self.edge_data[index], cv2.COLOR_BGR2RGB)
+            edge = cv2.cvtColor(cv2.imread(self.edge_data[index]), cv2.COLOR_BGR2RGB)
             edge = self.resize(edge, imgh, imgw)
 
             # non-max suppression
             if self.nms == 1:
                 edge = edge * canny(img, sigma=sigma, mask=mask)
 
-            return edge, gt_edge
+            return edge
 
     def load_mask(self, img, index):
         imgh, imgw = img.shape[0:2]
@@ -150,14 +150,14 @@ class Dataset(torch.utils.data.Dataset):
         # external
         if mask_type == 3:
             #mask_index = random.randint(0, len(self.mask_data) - 1)
-            mask = imread(self.mask_data[index])
+            mask = cv2.cvtColor(cv2.imread(self.mask_data[index]), cv2.COLOR_BGR2RGB)
             mask = self.resize(mask, imgh, imgw)
             mask = (mask > 0).astype(np.uint8) * 255       # threshold due to interpolation
             return mask
 
         # test mode: load mask non random
         if mask_type == 6:
-            mask = cv2.imread(self.mask_data[index])
+            mask = cv2.cvtColor(cv2.imread(self.mask_data[index]), cv2.COLOR_BGR2RGB)
             mask = self.resize(mask, imgh, imgw, centerCrop=False)
             mask = rgb2gray(mask)
             mask = (mask > 0).astype(np.uint8) * 255
