@@ -58,17 +58,24 @@ class Dataset(torch.utils.data.Dataset):
 
         # load image
         img = cv2.imread(self.data[index], cv2.COLOR_BGR2RGB)
+        # load gt image
+        gt_img = cv2.imread(self.gt_data[index], cv2.COLOR_BGR2RGB)
 
         # gray to rgb
         if len(img.shape) < 3:
             img = gray2rgb(img)
+        if len(gt_img.shape) < 3:
+            gt_img = gray2rgb(gt_img)
 
         # resize/crop if needed
         if size != 0:
             img = self.resize(img, size, size)
+        if size != 0:
+            gt_img = self.resize(gt_img, size, size)
 
         # create grayscale image
         img_gray = rgb2gray(img)
+        gt_img_gray = rgb2gray(gt_img)
 
         # load mask
         mask = self.load_mask(img, index)
@@ -80,10 +87,12 @@ class Dataset(torch.utils.data.Dataset):
         if self.augment and np.random.binomial(1, 0.5) > 0:
             img = img[:, ::-1, ...]
             img_gray = img_gray[:, ::-1, ...]
+            gt_img = gt_img[:, ::-1, ...]
+            gt_img_gray = gt_img_gray[:, ::-1, ...]
             edge = edge[:, ::-1, ...]
-            mask = mask[:, ::-1, ...]
+            mask = mask[:, ::-1, ...] 
 
-        return self.to_tensor(img), self.to_tensor(img_gray), self.to_tensor(edge), self.to_tensor(mask)
+        return self.to_tensor(img), self.to_tensor(img_gray), self.to_tensor(edge), self.to_tensor(mask), self.to_tensor(gt_img)
 
     def load_edge(self, img, index, mask):
         sigma = self.sigma

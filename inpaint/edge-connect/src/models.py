@@ -192,7 +192,7 @@ class InpaintingModel(BaseModel):
             betas=(config.BETA1, config.BETA2)
         )
 
-    def process(self, images, edges, masks):
+    def process(self, images, edges, masks, gts):
         self.iteration += 1
 
         # zero optimizers
@@ -207,7 +207,8 @@ class InpaintingModel(BaseModel):
 
 
         # discriminator loss
-        dis_input_real = images
+        # dis_input_real = images
+        dis_input_real = gts
         dis_input_fake = outputs.detach()
         dis_real, _ = self.discriminator(dis_input_real)                    # in: [rgb(3)]
         dis_fake, _ = self.discriminator(dis_input_fake)                    # in: [rgb(3)]
