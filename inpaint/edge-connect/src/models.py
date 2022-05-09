@@ -45,11 +45,11 @@ class BaseModel(nn.Module):
         torch.save({
             'iteration': self.iteration,
             'generator': self.generator.state_dict()
-        }, os.path.join(self.config.PATH,self.name + '_gen_{}.pth'.format(self.iteration)))
+        }, os.path.join(self.config.PATH,self.name + '_gen.pth'))
 
         torch.save({
             'discriminator': self.discriminator.state_dict()
-        }, os.path.join(self.config.PATH, self.name + '_dis_{}.pth'.format(self.iteration)))
+        }, os.path.join(self.config.PATH, self.name + '_dis.pth'))
 
 
 class EdgeModel(BaseModel):
@@ -101,7 +101,7 @@ class EdgeModel(BaseModel):
 
         # discriminator loss
         dis_input_real = torch.cat((gts, gt_edge), dim=1)
-        dis_input_fake = torch.cat((images, outputs.detach()), dim=1)
+        dis_input_fake = torch.cat((gts, outputs.detach()), dim=1)
         dis_real, dis_real_feat = self.discriminator(dis_input_real)        # in: (grayscale(1) + edge(1))
         dis_fake, dis_fake_feat = self.discriminator(dis_input_fake)        # in: (grayscale(1) + edge(1))
         dis_real_loss = self.adversarial_loss(dis_real, True, True)
@@ -110,7 +110,7 @@ class EdgeModel(BaseModel):
 
 
         # generator adversarial loss
-        gen_input_fake = torch.cat((images, outputs), dim=1)
+        gen_input_fake = torch.cat((gts, outputs), dim=1)
         gen_fake, gen_fake_feat = self.discriminator(gen_input_fake)        # in: (grayscale(1) + edge(1))
         gen_gan_loss = self.adversarial_loss(gen_fake, True, False)
         gen_loss += gen_gan_loss
@@ -258,9 +258,9 @@ class InpaintingModel(BaseModel):
         outputs = self.generator(inputs)                                    # in: [rgb(3) + edge(1)]
         return outputs
 
-    def backward(self, gen_loss=None, dis_loss=None):
-        gen_loss.backward()
+    def backward(self, gen_loss=None, dis_loss=None, retain_graph=False):
+        gen_loss.backward(retain_graph=retain_graph)
         self.gen_optimizer.step()
         
-        dis_loss.backward()
+        dis_loss.backward(retain_graph=retain_graph)
         self.dis_optimizer.step()

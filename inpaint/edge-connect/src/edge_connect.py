@@ -164,7 +164,7 @@ class EdgeConnect():
                     # train
                     e_outputs, e_gen_loss, e_dis_loss, e_logs = self.edge_model.process(images_gray, edges, masks, gt_gray, gt_edge)
                     e_outputs = e_outputs * masks + edges * (1 - masks)
-                    i_outputs, i_gen_loss, i_dis_loss, i_logs = self.inpaint_model.process(images, e_outputs, masks, gts)
+                    i_outputs, i_gen_loss, i_dis_loss, i_logs = self.inpaint_model.process(images, e_outputs.detach().clone(), masks, gts)
                     outputs_merged = (i_outputs * masks) + (images * (1 - masks))
 
                     # metrics
