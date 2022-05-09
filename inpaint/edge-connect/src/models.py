@@ -225,18 +225,18 @@ class InpaintingModel(BaseModel):
 
 
         # generator l1 loss
-        gen_l1_loss = self.l1_loss(outputs, images) * self.config.L1_LOSS_WEIGHT / torch.mean(masks)
+        gen_l1_loss = self.l1_loss(outputs, gts) * self.config.L1_LOSS_WEIGHT / torch.mean(masks)
         gen_loss += gen_l1_loss
 
 
         # generator perceptual loss
-        gen_content_loss = self.perceptual_loss(outputs, images)
+        gen_content_loss = self.perceptual_loss(outputs, gts)
         gen_content_loss = gen_content_loss * self.config.CONTENT_LOSS_WEIGHT
         gen_loss += gen_content_loss
 
 
         # generator style loss
-        gen_style_loss = self.style_loss(outputs * masks, images * masks)
+        gen_style_loss = self.style_loss(outputs * masks, gts * masks)
         gen_style_loss = gen_style_loss * self.config.STYLE_LOSS_WEIGHT
         gen_loss += gen_style_loss
 
