@@ -152,6 +152,7 @@ class Dataset(torch.utils.data.Dataset):
             #mask_index = random.randint(0, len(self.mask_data) - 1)
             mask = cv2.cvtColor(cv2.imread(self.mask_data[index]), cv2.COLOR_BGR2RGB)
             mask = self.resize(mask, imgh, imgw)
+            mask = rgb2gray(mask)
             mask = (mask > 0).astype(np.uint8) * 255       # threshold due to interpolation
             return mask
 

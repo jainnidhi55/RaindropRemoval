@@ -136,13 +136,16 @@ class EdgeConnect():
                 # inpaint with edge model
                 elif model == 3:
                     # train
-                    if True or np.random.binomial(1, 0.5) > 0:
-                        outputs = self.edge_model(images_gray, edges, masks)
-                        outputs = outputs * masks + edges * (1 - masks)
-                    else:
-                        outputs = edges
+                    # if True or np.random.binomial(1, 0.5) > 0:
+                    #     outputs = self.edge_model(images_gray, edges, masks)
+                    #     outputs = outputs * masks + edges * (1 - masks)
+                    # else:
+                    #     outputs = edges
 
-                    outputs, gen_loss, dis_loss, logs = self.inpaint_model.process(images, outputs.detach(), masks)
+                    outputs = self.edge_model(images_gray, edges, masks)
+                    outputs = outputs * masks + edges * (1 - masks)
+
+                    outputs, gen_loss, dis_loss, logs = self.inpaint_model.process(images, outputs.detach(), masks, gts)
                     outputs_merged = (outputs * masks) + (images * (1 - masks))
 
                     # metrics
